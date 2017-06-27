@@ -17,9 +17,6 @@ YELLOW_HIGH = np.asarray([30, 255, 255])
 WHITE_LOW   = np.asarray([0, 0, 230])
 WHITE_HIGH  = np.asarray([255, 80, 255])
 
-FRAME_HEIGHT = 0
-FRAMR_WIDHT  = 0
-
 
 def get_slope(x1, y1, x2, y2):
     '''
