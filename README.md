@@ -1,9 +1,11 @@
 # README #
 
-This is a basic Lane detection program. Detect lines using Hough Transform and fit a line on points.
+This is a basic Lane detection program. Detect lines using Hough Transform and fit a line on points. Tested on Windows 7.
 
 ### How to run the program? ###
-`python lane_detect.py`
+####Dependencies####
+* Clone the repository/download the code
+* On console 
 
 * Quick summary
 * Version
