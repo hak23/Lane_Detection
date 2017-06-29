@@ -1,8 +1,9 @@
 # README #
 
-This README would normally document whatever steps are necessary to get your application up and running.
+This is a basic Lane detection program. Detect lines using Hough Transform and fit a line on points.
 
-### What is this repository for? ###
+### How to run the program? ###
+`python lane_detect.py`
 
 * Quick summary
 * Version
