@@ -1,7 +1,18 @@
+import sys
 import numpy as np
 import cv2
 
-VIDEO_INPUT = 'solidWhiteRight.mp4'
+'''
+:Author Vignesh Ungrapalli
+A basic lane detection program with line detection in Hough Space and a simple line fitting.
+
+Important note: The code for carving out unnecessary region (in preprocess_image) is very much
+camera placement dependent. I have tried the code on videos where everything goes haywire because
+the region carving completely ignores the lanes. I still think in most cases removing the upper sky part should
+work.
+'''
+
+# VIDEO_INPUT = 'solidWhiteRight.mp4'
 VIDEO_INPUT = 'challenge.mp4'
 
 RHO_ACCURACY    = 1
@@ -87,6 +98,7 @@ def preprocess_image(frame_in):
 
     frame_h = frame_in.shape[0] 
     frame_w = frame_in.shape[1]
+    
     frame_hsv = cv2.cvtColor(frame_in, cv2.COLOR_BGR2HSV)
     frame_thresholded = color_threshold(frame_in, frame_hsv) 
     frame_hsv = cv2.split(frame_thresholded)
@@ -96,6 +108,7 @@ def preprocess_image(frame_in):
     pts = np.array([[(0,0), (0, frame_h), (frame_w/2 - 25, frame_h/2 + 25), (frame_w/2 + 25, frame_h/2 + 25), (frame_w, frame_h), (frame_w, 0)]])
     cv2.fillPoly(frame_edge, pts, 0)
     # cv2.imshow('', frame_edge) 
+    
     return frame_edge
 
 
@@ -125,7 +138,7 @@ def process_lines(lines_list):
     '''
     
     right_lane = []
-    left_lane = []
+    left_lane  = []
 
     for lines in lines_list:
         slope = get_slope(lines[0], lines[1], lines[2], lines[3])
@@ -142,7 +155,6 @@ def process_lines(lines_list):
             left_lane.append((lines[0], lines[1]))
             left_lane.append((lines[2], lines[3]))
    
-
     return right_lane, left_lane
 
 
@@ -151,7 +163,14 @@ if __name__ == '__main__':
     Read Video frame by frame and call hepler functions 
     '''
     
-    video_in = cv2.VideoCapture(VIDEO_INPUT)
+    if len(sys.argv) > 1:
+        # Expcet Video Filename in argv[1]
+        video_input = sys.argv[1]
+    else:
+        # use default video in case there is no input from console
+        video_input = VIDEO_INPUT
+
+    video_in = cv2.VideoCapture(video_input)
     if video_in.isOpened():
         FRAME_WIDTH = video_in.get(3)
         FRAME_HEIGHT = video_in.get(4)
@@ -169,7 +188,7 @@ if __name__ == '__main__':
     
             # check if lines_list is not empty
             if np.any(np.equal(lines_list, None)):
-                print "skipping frame"
+                # print "skipping frame"
                 continue
             else:
                 right_lane, left_lane = process_lines(lines_list)
@@ -181,7 +200,7 @@ if __name__ == '__main__':
 
             if len(left_lane) is not 0:
                 left_lane  = cv2.fitLine(np.asarray(left_lane), cv2.DIST_L1, 0, 0.01, 0.01)
-                m_left,  c_left  = get_line_props(left_lane)
+                m_left, c_left  = get_line_props(left_lane)
                 cv2.line(frame_in, (int((FRAME_HEIGHT-c_left)/m_left), int(FRAME_HEIGHT)), (left_lane[2], left_lane[3]), (0,255,0), 5)
 
             cv2.imshow('', frame_in)
@@ -195,3 +214,4 @@ if __name__ == '__main__':
     # When everything done, release the capture
     video_in.release()
     cv2.destroyAllWindows()
+
