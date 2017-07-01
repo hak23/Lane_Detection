@@ -12,8 +12,8 @@ the region carving completely ignores the lanes. I still think in most cases rem
 work.
 '''
 
-# VIDEO_INPUT = 'solidWhiteRight.mp4'
-VIDEO_INPUT = 'challenge.mp4'
+VIDEO_INPUT = 'solidWhiteRight.mp4'
+# VIDEO_INPUT = 'challenge.mp4'
 
 RHO_ACCURACY    = 1
 THETA_ACCURACY  = np.pi/90 
@@ -45,7 +45,6 @@ def get_slope(x1, y1, x2, y2):
 
         return dy/dx
     else:
-
         return None
 
 
@@ -59,10 +58,34 @@ def get_line_props(line):
     :ret m,c: slope and intercept of the line passing through (x1,y1) and (x2,y2)
     '''
 
-    m = (float(line[1])/line[0])
-    c = float(line[3]) - (m * line[2])
+    if line[0] is not 0:
+        m = (float(line[1])/line[0])
+        c = float(line[3]) - (m * line[2])
+    else:
+        m = None
+        c = None
 
     return m,c
+
+
+def get_x(y, lane):
+    '''
+    Get the x coordinate give line and y coordinate.
+   
+    :param y: y coordinate of the point whose x coordinate needs to be calculated
+    :param lane: A list of four elements [x1,y1,x2,y2] where (x1,y1) is a vector colliniear to the given line
+                 and (x2,y2) is a point on the line. Basically output of cv2.fitLine
+
+    :ret: x coordinate of the point
+    :ret None: In case the slope is zero. It is not a problem as we do not consider lines of slope zero for our lanes.
+    '''
+    
+    m, c = get_line_props(lane)
+
+    if m is not 0:
+        return ((y-c)/m)
+    else:
+        return None
 
 
 def color_threshold(frame_in, frame_hsv):
@@ -107,7 +130,7 @@ def preprocess_image(frame_in):
     # Carve out unnecessary region in the frame
     pts = np.array([[(0,0), (0, frame_h), (frame_w/2 - 25, frame_h/2 + 25), (frame_w/2 + 25, frame_h/2 + 25), (frame_w, frame_h), (frame_w, 0)]])
     cv2.fillPoly(frame_edge, pts, 0)
-    # cv2.imshow('', frame_edge) 
+    cv2.imshow('w', frame_edge) 
     
     return frame_edge
 
@@ -158,9 +181,10 @@ def process_lines(lines_list):
     return right_lane, left_lane
 
 
+
 if __name__ == '__main__':
     ''' 
-    Read Video frame by frame and call hepler functions 
+    Read Video frame by frame and call hepler functions.
     '''
     
     if len(sys.argv) > 1:
@@ -172,7 +196,7 @@ if __name__ == '__main__':
 
     video_in = cv2.VideoCapture(video_input)
     if video_in.isOpened():
-        FRAME_WIDTH = video_in.get(3)
+        FRAME_WIDTH  = video_in.get(3)
         FRAME_HEIGHT = video_in.get(4)
         print FRAME_HEIGHT, FRAME_WIDTH
 
@@ -193,17 +217,27 @@ if __name__ == '__main__':
             else:
                 right_lane, left_lane = process_lines(lines_list)
 
+            # Draw the right lane on the original frame
             if len(right_lane) is not 0:
                 right_lane = cv2.fitLine(np.asarray(right_lane), cv2.DIST_L1, 0, 0.01, 0.01)
-                m_right, c_right = get_line_props(right_lane)
-                cv2.line(frame_in, (int((FRAME_HEIGHT-c_right)/m_right), int(FRAME_HEIGHT)), (right_lane[2], right_lane[3]), (0,255,0), 5)
-
+                
+                y1 = FRAME_HEIGHT
+                x1 = get_x(y1, right_lane)
+                y2 = FRAME_HEIGHT * 0.75
+                x2 = get_x(y2, right_lane)
+                cv2.line(frame_in, (int(x1), int(y1)), (int(x2), int(y2)), (0,255,0), 5)
+            
+            # Draw the left lane on the original frame
             if len(left_lane) is not 0:
                 left_lane  = cv2.fitLine(np.asarray(left_lane), cv2.DIST_L1, 0, 0.01, 0.01)
-                m_left, c_left  = get_line_props(left_lane)
-                cv2.line(frame_in, (int((FRAME_HEIGHT-c_left)/m_left), int(FRAME_HEIGHT)), (left_lane[2], left_lane[3]), (0,255,0), 5)
+               
+                y1 = FRAME_HEIGHT
+                x1 = get_x(y1, left_lane)
+                y2 = FRAME_HEIGHT * 0.75
+                x2 = get_x(y2, left_lane)
+                cv2.line(frame_in, (int(x1), int(y1)), (int(x2), int(y2)), (0,255,0), 5)
 
-            cv2.imshow('', frame_in)
+            cv2.imshow('output', frame_in)
 
             if cv2.waitKey(FRAME_DELAY) & 0xFF == ord('q'):
                 break 
