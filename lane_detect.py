@@ -28,6 +28,7 @@ YELLOW_HIGH = np.asarray([30, 255, 255])
 WHITE_LOW   = np.asarray([0, 0, 230])
 WHITE_HIGH  = np.asarray([255, 80, 255])
 
+DUMP = 1 
 
 def get_slope(x1, y1, x2, y2):
     '''
@@ -194,11 +195,15 @@ if __name__ == '__main__':
         # use default video in case there is no input from console
         video_input = VIDEO_INPUT
 
-    video_in = cv2.VideoCapture(video_input)
+    video_in  = cv2.VideoCapture(video_input)
     if video_in.isOpened():
         FRAME_WIDTH  = video_in.get(3)
         FRAME_HEIGHT = video_in.get(4)
         print FRAME_HEIGHT, FRAME_WIDTH
+
+    if DUMP:
+        fourcc = cv2.VideoWriter_fourcc(*'DIVX')
+        video_out = cv2.VideoWriter('output.avi', fourcc, 24.0, (int(FRAME_WIDTH), int(FRAME_HEIGHT))) 
 
     while(video_in.isOpened()):
         # Read the video frame by frame
@@ -244,6 +249,8 @@ if __name__ == '__main__':
                 cv2.line(frame_in, (int(x1), int(y1)), (int(x2), int(y2)), (0,255,0), 5)
 
             cv2.imshow('output', frame_in)
+            if DUMP:
+                video_out.write(frame_in)
 
             if cv2.waitKey(FRAME_DELAY) & 0xFF == ord('q'):
                 break 
