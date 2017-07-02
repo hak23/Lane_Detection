@@ -82,7 +82,7 @@ def get_x(y, lane):
     
     m, c = get_line_props(lane)
 
-    if m is not 0:
+    if m is not 0 and not None:
         return ((y-c)/m)
     else:
         return None
@@ -225,6 +225,9 @@ if __name__ == '__main__':
                 x1 = get_x(y1, right_lane)
                 y2 = FRAME_HEIGHT * 0.75
                 x2 = get_x(y2, right_lane)
+                if x1 is None or x2 is None:
+                    continue
+
                 cv2.line(frame_in, (int(x1), int(y1)), (int(x2), int(y2)), (0,255,0), 5)
             
             # Draw the left lane on the original frame
@@ -235,6 +238,9 @@ if __name__ == '__main__':
                 x1 = get_x(y1, left_lane)
                 y2 = FRAME_HEIGHT * 0.75
                 x2 = get_x(y2, left_lane)
+                if x1 is None or x2 is None:
+                    continue
+
                 cv2.line(frame_in, (int(x1), int(y1)), (int(x2), int(y2)), (0,255,0), 5)
 
             cv2.imshow('output', frame_in)
