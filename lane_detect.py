@@ -28,7 +28,7 @@ YELLOW_HIGH = np.asarray([30, 255, 255])
 WHITE_LOW   = np.asarray([0, 0, 230])
 WHITE_HIGH  = np.asarray([255, 80, 255])
 
-DUMP = 1 
+DUMP = 0 
 
 def get_slope(x1, y1, x2, y2):
     '''
@@ -251,6 +251,7 @@ if __name__ == '__main__':
             cv2.imshow('output', frame_in)
             if DUMP:
                 video_out.write(frame_in)
+                cv2.imwrite('out.jpg', frame_in)
 
             if cv2.waitKey(FRAME_DELAY) & 0xFF == ord('q'):
                 break 
