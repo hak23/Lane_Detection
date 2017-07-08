@@ -11,4 +11,4 @@ This is a basic Lane detection program. Detect lines using Hough Transform and f
 * Clone the repository/download the code
 * On console use python lane_detect.py /path/to/video/ file or to use the default video file use python lane_detect.py
 
-A more detailed blog will soon be posted.
+A more detailed blog on medium can be found [here](https://medium.com/@hawking23/thinking-in-the-hough-space-the-doing-d17a13e068fe "Thinking in the Hough Space: The Doing")
