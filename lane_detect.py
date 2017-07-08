@@ -12,8 +12,7 @@ the region carving completely ignores the lanes. I still think in most cases rem
 work.
 '''
 
-VIDEO_INPUT = 'solidWhiteRight.mp4'
-# VIDEO_INPUT = 'challenge.mp4'
+VIDEO_INPUT = 'solidYellowLeft.mp4'
 
 RHO_ACCURACY    = 1
 THETA_ACCURACY  = np.pi/90 
@@ -25,10 +24,11 @@ FRAME_DELAY = 25
 
 YELLOW_LOW  = np.asarray([20, 100, 100]) 
 YELLOW_HIGH = np.asarray([30, 255, 255])
-WHITE_LOW   = np.asarray([0, 0, 230])
+WHITE_LOW   = np.asarray([0, 0, 230]) 
 WHITE_HIGH  = np.asarray([255, 80, 255])
 
-DUMP = 0 
+DUMP = 1 
+
 
 def get_slope(x1, y1, x2, y2):
     '''
@@ -126,12 +126,14 @@ def preprocess_image(frame_in):
     frame_hsv = cv2.cvtColor(frame_in, cv2.COLOR_BGR2HSV)
     frame_thresholded = color_threshold(frame_in, frame_hsv) 
     frame_hsv = cv2.split(frame_thresholded)
-    frame_edge = cv2.Canny(frame_hsv[2], 50, 150, apertureSize=3)
+    frame_grey = frame_hsv[2]
     
     # Carve out unnecessary region in the frame
     pts = np.array([[(0,0), (0, frame_h), (frame_w/2 - 25, frame_h/2 + 25), (frame_w/2 + 25, frame_h/2 + 25), (frame_w, frame_h), (frame_w, 0)]])
-    cv2.fillPoly(frame_edge, pts, 0)
-    cv2.imshow('w', frame_edge) 
+    cv2.fillPoly(frame_grey, pts, 0)
+    
+    frame_edge = cv2.Canny(frame_grey, 50, 150, apertureSize=3)
+    cv2.imshow('w', frame_edge)
     
     return frame_edge
 
@@ -228,7 +230,7 @@ if __name__ == '__main__':
                 
                 y1 = FRAME_HEIGHT
                 x1 = get_x(y1, right_lane)
-                y2 = FRAME_HEIGHT * 0.75
+                y2 = FRAME_HEIGHT * 0.65
                 x2 = get_x(y2, right_lane)
                 if x1 is None or x2 is None:
                     continue
@@ -238,10 +240,10 @@ if __name__ == '__main__':
             # Draw the left lane on the original frame
             if len(left_lane) is not 0:
                 left_lane  = cv2.fitLine(np.asarray(left_lane), cv2.DIST_L1, 0, 0.01, 0.01)
-               
+                
                 y1 = FRAME_HEIGHT
                 x1 = get_x(y1, left_lane)
-                y2 = FRAME_HEIGHT * 0.75
+                y2 = FRAME_HEIGHT * 0.65
                 x2 = get_x(y2, left_lane)
                 if x1 is None or x2 is None:
                     continue
@@ -251,7 +253,6 @@ if __name__ == '__main__':
             cv2.imshow('output', frame_in)
             if DUMP:
                 video_out.write(frame_in)
-                cv2.imwrite('out.jpg', frame_in)
 
             if cv2.waitKey(FRAME_DELAY) & 0xFF == ord('q'):
                 break 
