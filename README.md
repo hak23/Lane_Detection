@@ -1,3 +1,4 @@
+[![codebeat badge](https://codebeat.co/badges/02cf3f4d-7118-4519-a33b-96de78dda1f5)](https://codebeat.co/projects/github-com-hak23-lane_detection-master)
 # README #
 
 This is a basic Lane detection program. Detect lines using Hough Transform and fit a line on points. Tested on Windows 7.
